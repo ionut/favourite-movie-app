@@ -22,64 +22,76 @@ const tempMovieData = [
   },
 ];
 
-const tempWatchedData = [
-  {
-    imdbID: "tt1375666",
-    Title: "Inception",
-    Year: "2010",
-    Poster: "https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_SX300.jpg",
-    runtime: 148,
-    imdbRating: 8.8,
-    userRating: 10,
-  },
-  {
-    imdbID: "tt0088763",
-    Title: "Back to the Future",
-    Year: "1985",
-    Poster: "https://m.media-amazon.com/images/M/MV5BZmU0M2Y1OGUtZjIxNi00ZjBkLTg1MjgtOWIyNThiZWIwYjRiXkEyXkFqcGdeQXVyMTQxNzMzNDI@._V1_SX300.jpg",
-    runtime: 116,
-    imdbRating: 8.5,
-    userRating: 9,
-  },
-];
-
 const average = (arr) => arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
 
 const KEY = "20336a5e";
 
 export default function App() {
   const [movies, setMovies] = useState([]);
-  const [watched, setWatched] = useState(tempWatchedData);
+  const [watched, setWatched] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [query, setQuery] = useState("");
+  const [selectedId, setSelectedId] = useState(null);
 
-  useEffect(function () {
-    async function fetchMovies() {
-      try {
-        setIsLoading(true);
-        const res = await fetch(`http://www.omdbapi1.com/?apikey=${KEY}&s=interstellar`);
-        if (!res.ok) throw new Error("Something went wrong!");
-        const data = await res.json();
-        setMovies(data.Search);
-        setIsLoading(false);
-      } catch (error) {
-        setMessage(error.message);
+  const handleId = (id) => {
+    setSelectedId((selectedId) => (id === selectedId ? null : id));
+  };
+
+  const handleCloseDetails = () => {
+    setSelectedId(null);
+  };
+
+  useEffect(
+    function () {
+      async function fetchMovies() {
+        try {
+          setIsLoading(true);
+          setError("");
+          const res = await fetch(`http://www.omdbapi.com/?apikey=${KEY}&s=${query}`);
+          if (!res.ok) throw new Error("Something went wrong!");
+          const data = await res.json();
+          if (data.Response === "False") throw new Error("Movie not found");
+          setMovies(data.Search);
+        } catch (error) {
+          setError(error.message);
+        } finally {
+          setIsLoading(false);
+        }
       }
-    }
-    fetchMovies();
-  }, []);
+
+      if (query.length < 3) {
+        setMovies([]);
+        setError("");
+        return;
+      }
+
+      fetchMovies();
+    },
+    [query]
+  );
 
   return (
     <>
       <Navbar>
-        <SearchMoviesInput />
+        <SearchMoviesInput query={query} setQuery={setQuery} />
         <MoviesNumber numMovies={movies.length} />
       </Navbar>
       <MainSection>
-        <Box>{isLoading ? <Loader /> : <MoviesList movies={movies} />}</Box>
         <Box>
-          <SummaryList watched={watched} />
-          <WatchedList watched={watched} />
+          {isLoading && <Loader />}
+          {!isLoading && !error && <MoviesList movies={movies} onSelectIdMovie={handleId} />}
+          {error && <Error message={error} />}
+        </Box>
+        <Box>
+          {selectedId ? (
+            <MovieDetails selectedId={selectedId} handleCloseDetails={handleCloseDetails} />
+          ) : (
+            <>
+              <SummaryList watched={watched} />
+              <WatchedList watched={watched} />
+            </>
+          )}
         </Box>
       </MainSection>
     </>
@@ -89,11 +101,21 @@ export default function App() {
 const Loader = () => {
   return (
     <>
-      <p className="loader">Is loading...</p>
+      <p className="loader">Loading...</p>
     </>
   );
 };
 
+const Error = ({ message }) => {
+  return (
+    <>
+      <p className="error">
+        <span>📛</span>
+        {message}
+      </p>
+    </>
+  );
+};
 const Navbar = ({ children }) => {
   return (
     <nav className="nav-bar">
@@ -112,8 +134,7 @@ const Logo = () => {
   );
 };
 
-const SearchMoviesInput = () => {
-  const [query, setQuery] = useState("");
+const SearchMoviesInput = ({ query, setQuery }) => {
   return (
     <>
       <input className="search" type="text" placeholder="Search movies..." value={query} onChange={(e) => setQuery(e.target.value)} />
@@ -153,22 +174,22 @@ const Box = ({ children }) => {
   );
 };
 
-const MoviesList = ({ movies }) => {
+const MoviesList = ({ movies, onSelectIdMovie }) => {
   return (
     <>
-      <ul className="list">
+      <ul className="list list-movies">
         {movies?.map((movie) => (
-          <Movie movie={movie} key={movie.imdbID} />
+          <Movie movie={movie} key={movie.imdbID} onSelectIdMovie={onSelectIdMovie} />
         ))}
       </ul>
     </>
   );
 };
 
-const Movie = ({ movie }) => {
+const Movie = ({ movie, onSelectIdMovie }) => {
   return (
     <>
-      <li>
+      <li onClick={() => onSelectIdMovie(movie.imdbID)}>
         <img src={movie.Poster} alt={`${movie.Title} poster`} />
         <h3>{movie.Title}</h3>
         <div>
@@ -178,6 +199,19 @@ const Movie = ({ movie }) => {
           </p>
         </div>
       </li>
+    </>
+  );
+};
+
+const MovieDetails = ({ selectedId, handleCloseDetails }) => {
+  return (
+    <>
+      <div className="details">
+        <button className="btn-back" onClick={handleCloseDetails}>
+          &larr;
+        </button>
+        {selectedId}
+      </div>
     </>
   );
 };
