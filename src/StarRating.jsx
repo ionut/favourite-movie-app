@@ -12,9 +12,14 @@ const starsContainerStyle = {
   gap: "4px",
 };
 
-export default function StarRating({ maxRating = 5, color = "#fcc419", size = 48, messages = [], defaultRating = 0 }) {
+export default function StarRating({ maxRating = 5, color = "#fcc419", size = 48, messages = [], defaultRating = 0, onSetRating }) {
   const [rating, setRating] = useState(defaultRating);
   const [temprating, setTemprating] = useState(0);
+
+  function handleRating(rating) {
+    setRating(rating);
+    onSetRating(rating);
+  }
 
   const textStyle = {
     lineHeight: "1",
@@ -29,7 +34,7 @@ export default function StarRating({ maxRating = 5, color = "#fcc419", size = 48
         {Array.from({ length: maxRating }, (_, i) => (
           <Star
             key={i}
-            onRate={() => setRating(i + 1)}
+            onRate={() => handleRating(i + 1)}
             onHoverIn={() => setTemprating(i + 1)}
             onHoverOut={() => setTemprating(0)}
             full={temprating ? temprating >= i + 1 : rating >= i + 1}

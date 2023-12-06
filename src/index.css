@@ -1,7 +1,7 @@
 :root {
-  --color-primary: #6741d9;
-  --color-primary-light: #7950f2;
-  --color-text: #dee2e6;
+  --color-primary: #f5c518;
+  --color-primary-dark: #f5c518b3;
+  --color-text: #fff;
   --color-text-dark: #adb5bd;
   --color-background-100: #343a40;
   --color-background-500: #2b3035;
@@ -21,8 +21,7 @@ html {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
 
   color: var(--color-text);
   background-color: var(--color-background-900);
@@ -35,8 +34,9 @@ body {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   align-items: center;
-  height: 7.2rem;
-  padding: 0 3.2rem;
+  gap: 1rem;
+  height: 100%;
+  padding: 2rem 3.2rem;
   background-color: var(--color-primary);
   border-radius: 0.9rem;
 }
@@ -50,12 +50,25 @@ body {
 }
 
 .box {
-  width: 42rem;
-  max-width: 42rem;
+  height: 100%;
+  width: 50%;
   background-color: var(--color-background-500);
   border-radius: 0.9rem;
-  overflow: scroll;
+  overflow-y: auto;
   position: relative;
+}
+
+.box::-webkit-scrollbar {
+  width: 1em;
+}
+
+.box::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+}
+
+.box::-webkit-scrollbar-thumb {
+  background-color: darkgrey;
+  outline: 1px solid slategrey;
 }
 
 .loader {
@@ -87,7 +100,7 @@ body {
 .logo h1 {
   font-size: 2.4rem;
   font-weight: 600;
-  color: #fff;
+  color: #000;
 }
 
 .search {
@@ -96,12 +109,10 @@ body {
   padding: 1.1rem 1.6rem;
   font-size: 1.8rem;
   border-radius: 0.7rem;
-  width: 40rem;
   transition: all 0.3s;
   color: var(--color-text);
 
-  /* background-color: var(--color-background-900); */
-  background-color: var(--color-primary-light);
+  background-color: var(--color-background-900);
 }
 
 .search::placeholder {
@@ -117,6 +128,7 @@ body {
 .num-results {
   justify-self: end;
   font-size: 1.8rem;
+  color: #000;
 }
 
 .btn-toggle {
@@ -138,7 +150,6 @@ body {
 .list {
   list-style: none;
   padding: 0.8rem 0;
-  overflow: scroll;
 }
 
 .list-watched {
@@ -293,7 +304,7 @@ body {
 
 .btn-add {
   background-color: var(--color-primary);
-  color: var(--color-text);
+  color: #000;
   border: none;
   border-radius: 10rem;
   font-size: 1.4rem;
@@ -304,7 +315,7 @@ body {
 }
 
 .btn-add:hover {
-  background-color: var(--color-primary-light);
+  background-color: var(--color-primary-dark);
 }
 
 .seconds {
@@ -325,7 +336,6 @@ body {
   aspect-ratio: 1;
   border-radius: 50%;
   border: none;
-  /* background-color: var(--color-text); */
   background-color: #fff;
   color: var(--color-background-500);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.8);
@@ -337,6 +347,30 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+@media screen and (max-width: 767px) {
+  .logo {
+    grid-column: 1/4;
+    align-self: center;
+    justify-self: center;
+  }
+  .search {
+    grid-column: 1/2;
+  }
+
+  .num-results {
+    grid-column: 2/3;
+  }
+
+  .main {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .box {
+    width: 100%;
+  }
 }
 
 /*
